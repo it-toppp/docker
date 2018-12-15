@@ -7,6 +7,10 @@ sudo modprobe binder_linux
 sudo snap install --devmode --beta anbox
 sudo apt-get install android-sdk-platform-tools
 
+
+sudo apt install android-tools-adb
+
+
 wget https://www.cdn.whatsapp.net/android/2.18.379/WhatsApp.apk
 adb install WhatsApp.apk
 
