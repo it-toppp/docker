@@ -1,4 +1,5 @@
-
+sudo apt update
+sudo apt install xubuntu-desktop -y
 sudo add-apt-repository ppa:morphis/anbox-support -y
 sudo apt update
 sudo apt install xubuntu-desktop anbox-modules-dkms snap wget mc htop lzip unzip squashfs-tools -y
@@ -10,14 +11,18 @@ sudo snap install --devmode --beta anbox
 
 sudo apt install android-tools-adb -y
 
-wget https://www.cdn.whatsapp.net/android/2.18.379/WhatsApp.apk
-#adb install WhatsApp.apk
 
 wget https://download.teamviewer.com/download/linux/teamviewer_amd64.deb
-#apt install ./teamviewer_amd64.deb -y
 
-useradd -G sudo -d /home/test -s /bin/bash test -p qazwsxedc
+
+apt install ./teamviewer_amd64.deb -y
+
+wget https://www.cdn.whatsapp.net/android/2.18.379/WhatsApp.apk
+adb install WhatsApp.apk
+
+useradd -G sudo -d /home/test -s /bin/bash test
 mkdir /home/test
 chown test:test -R /home/test
+passwd test
 
 
