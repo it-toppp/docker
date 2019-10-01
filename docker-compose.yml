@@ -1,34 +1,100 @@
-nginx:
-    image: nginx:alpine
+version: "3.6"
+volumes:
+  elasticsearch:
+
+services:
+  vesta:
+    image: niiknow/vestacp
+    container_name: vesta
+    cap_add: ['NET_RAW', 'NET_ADMIN']
+#    privileged: true
+    volumes:
+      - "./backup:/backup"
+      - "./vesta:/vesta"
+      - "./home:/home"
     ports:
-        - '80:80'
-    volumes:
-        - ./nginx:/etc/nginx/conf.d
-        - ./logs/nginx:/var/log/nginx
-        - ./wordpress:/var/www/html
-    links:
-        - wordpress
+#      - "3322:22"
+      - "80:80"
+      - "443:443"
+      - "9088:8083"
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    sysctls:
+      net.core.somaxconn: '511'
+    labels:
+      - "Vesta Control Panel"
     restart: always
-wordpress:
-    image: wordpress:php7.2-fpm-alpine
-#    ports:
-#        - '9000:9000'
-    volumes:
-        - ./wordpress:/var/www/html
-    environment:
-        - WORDPRESS_DB_NAME=wpdb
-        - WORDPRESS_TABLE_PREFIX=wp_
-        - WORDPRESS_DB_HOST=mysql
-        - WORDPRESS_DB_PASSWORD=aqwe123
-    links:
-        - mysql
-    restart: always 
-mysql:
-    image: mariadb
-    ports:
-        - '3306:3306'
-    volumes:
-        - ./db-data:/var/lib/mysql
-    environment:
-        - MYSQL_ROOT_PASSWORD=aqwe123
-    restart: always
+
+  elasticsearch:
+      image: docker.elastic.co/elasticsearch/elasticsearch:6.5.4
+      restart: always
+      volumes:
+        - elasticsearch:/usr/share/elasticsearch/data
+      environment:
+#        - cluster.name=elasticsearch
+#        - discovery.type=single-node
+#        - node.name=n1gsm-shop
+        - bootstrap.memory_lock=true
+        - "ES_JAVA_OPTS=-Xms3g -Xmx3g"
+        - "xpack.security.enabled=false"
+      ulimits:
+        memlock:
+          soft: -1
+          hard: -1
+#      ports:
+#        - "9200:9200"
+#        - "9300:9300"
+      depends_on:
+        - vesta
+  php-worker:
+      restart: always
+      build:
+        context: ./php-worker
+        args:
+          - PHP_VERSION=${PHP_VERSION}
+#          - PHALCON_VERSION=${PHALCON_VERSION}
+          - INSTALL_PGSQL=${PHP_WORKER_INSTALL_PGSQL}
+          - INSTALL_BCMATH=${PHP_WORKER_INSTALL_BCMATH}
+          - INSTALL_PHALCON=${PHP_WORKER_INSTALL_PHALCON}
+          - INSTALL_SOAP=${PHP_WORKER_INSTALL_SOAP}
+          - INSTALL_ZIP_ARCHIVE=${PHP_WORKER_INSTALL_ZIP_ARCHIVE}
+          - INSTALL_MYSQL_CLIENT=${PHP_WORKER_INSTALL_MYSQL_CLIENT}
+          - INSTALL_AMQP=${PHP_WORKER_INSTALL_AMQP}
+          - INSTALL_CASSANDRA=${PHP_WORKER_INSTALL_CASSANDRA}
+          - INSTALL_GHOSTSCRIPT=${PHP_WORKER_INSTALL_GHOSTSCRIPT}
+          - INSTALL_SWOOLE=${PHP_WORKER_INSTALL_SWOOLE}
+          - INSTALL_TAINT=${PHP_WORKER_INSTALL_TAINT}
+          - INSTALL_FFMPEG=${PHP_WORKER_INSTALL_FFMPEG}
+          - INSTALL_GMP=${PHP_WORKER_INSTALL_GMP}
+          - PUID=${PHP_WORKER_PUID}
+          - PGID=${PHP_WORKER_PGID}
+      volumes:
+        - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
+        - ./php-worker/supervisord.d:/etc/supervisord.d
+
+
+   ### Beanstalkd ###########################################
+  beanstalkd:
+      restart: always
+      image: schickling/beanstalkd
+#      ports:
+#        - "${BEANSTALKD_HOST_PORT}:11300"
+      privileged: true
+      depends_on:
+        - vesta
+### phpMyAdmin ###########################################
+  phpmyadmin:
+      restart: always
+      image: phpmyadmin/phpmyadmin
+      environment:
+        - PMA_ARBITRARY=1
+        - MYSQL_USER=${PMA_USER}
+        - MYSQL_PASSWORD=${PMA_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${PMA_ROOT_PASSWORD}
+      ports:
+        - "${PMA_PORT}:80"
+      depends_on:
+        - vesta

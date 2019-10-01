@@ -1,8 +1,0 @@
-apt update
-apt update && apt install xfce4 xdm xfce4-xkb-plugin language-pack-ru -y
-systemctl enable xdm.service
-update-locale LANG=ru_RU.UTF-8
-echo 'FRAMEBUFFER=Y' >> /etc/initramfs-tools/initramfs.conf
-update-initramfs -u -k `uname -r
-xkbO='grp:alt_shift_toggle' && sed -i 's/XKBOPTIONS=\"\w*"/XKBOPTIONS=\"' $xkbO '\"/g' /etc/default/keyboard
-xkbL='us,ru' && sed -i 's/XKBLAYOUT=\"\w*"/XKBLAYOUT=\"' $xkbL '\"/g' /etc/default/keyboard
