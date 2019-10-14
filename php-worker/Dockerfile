@@ -32,8 +32,8 @@ ENV PUID ${PUID}
 ARG PGID=1000
 ENV PGID ${PGID}
 
-RUN addgroup -g ${PGID} laradock && \
-    adduser -D -G laradock -u ${PUID} laradock
+RUN addgroup -g ${PGID} admin && \
+    adduser -D -G admin -u ${PUID} admin
 
 #Install SOAP package:
 ARG INSTALL_SOAP=false
@@ -130,9 +130,9 @@ RUN if [ ${INSTALL_GMP} = true ]; then \
    && docker-php-ext-install gmp \
 ;fi
 
-
+ARG APP_CODE_PATH_CONTAINER=${APP_CODE_PATH_CONTAINER}
 RUN rm /var/cache/apk/* \
-    && mkdir -p /var/www
+    && mkdir -p ${APP_CODE_PATH_CONTAINER}
 
 
 ###########################################################################
