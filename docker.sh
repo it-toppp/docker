@@ -350,8 +350,8 @@ do_install() {
 				if ! is_dry_run; then
 					set -x
 				fi
-				$sh_c 'apt-get update -qq >/dev/null'
-				$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $pre_reqs >/dev/null"
+				$sh_c 'sudo apt-get update -qq >/dev/null'
+				$sh_c "sudo apt-get install -y -qq $pre_reqs >/dev/null"
 				$sh_c "curl -fsSL \"$DOWNLOAD_URL/linux/$lsb_dist/gpg\" | apt-key add -qq - >/dev/null"
 				$sh_c "echo \"$apt_repo\" > /etc/apt/sources.list.d/docker.list"
 				$sh_c 'apt-get update -qq >/dev/null'
@@ -384,9 +384,9 @@ do_install() {
 					set -x
 				fi
 				if [ -n "$cli_pkg_version" ]; then
-					$sh_c "apt-get install -y -qq --no-install-recommends docker-ce-cli=$cli_pkg_version >/dev/null"
+					$sh_c "sudo apt-get install -y -qq --no-install-recommends docker-ce-cli=$cli_pkg_version >/dev/null"
 				fi
-				$sh_c "apt-get install -y -qq --no-install-recommends docker-ce$pkg_version >/dev/null"
+				$sh_c "sudo apt-get install -y -qq --no-install-recommends docker-ce$pkg_version >/dev/null"
 			)
 			echo_docker_as_nonroot
 			exit 0
