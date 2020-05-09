@@ -46,15 +46,15 @@ services:
       - "traefik.frontend.auth.basic=${BASIC_AUTH}"
 #      - 'traefik.frontend.whiteList.sourceRange=${WHITE_LIST_IP}'
 
-  nginx:
-    restart: always
-    image: nginx/nginx-prometheus-exporter:0.3.0
-    command: --nginx.scrape-uri http://127.0.0.1:8084/stub_status
-    network_mode: host
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.port=9113'
-      - 'traefik.protocol=http'
-      - 'traefik.frontend.rule=Host:${DOMAIN}; PathPrefixStrip:/nginx'
-      - "traefik.frontend.auth.basic=${BASIC_AUTH}"
+#  nginx:
+#    restart: always
+#    image: nginx/nginx-prometheus-exporter:0.3.0
+#    command: --nginx.scrape-uri http://127.0.0.1:8084/stub_status
+#    network_mode: host
+#    labels:
+#      - 'traefik.enable=true'
+#      - 'traefik.port=9113'
+#      - 'traefik.protocol=http'
+#      - 'traefik.frontend.rule=Host:${DOMAIN}; PathPrefixStrip:/nginx'
+#      - "traefik.frontend.auth.basic=${BASIC_AUTH}"
 #      - 'traefik.frontend.whiteList.sourceRange=${WHITE_LIST_IP}'
