@@ -1,0 +1,60 @@
+version: '3.6'
+
+services:
+
+  traefik:
+    image: traefik:v1.7-alpine
+    command:
+      - "--docker"
+      - "--entrypoints=Name:http Address::${PORT}"
+      - "--docker.watch"
+      - "--docker.exposedbydefault=false"
+    restart: always
+    network_mode: host
+#    ports:
+#      - "${PORT}:${PORT}"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+#      - "./traefik/acme.json:/acme.json"
+#      - "./traefik/traefik.toml:/traefik.toml"
+    labels:
+      - "traefik.enable=false"
+
+  nodeexporter:
+    image: prom/node-exporter
+    container_name: nodeexporter
+    network_mode: host
+    pid: "host"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+#      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--web.listen-address=127.0.0.1:9100'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    restart: unless-stopped
+    labels:
+      - 'traefik.enable=true'
+      - 'org.label-schema.group:monitoring'
+      - 'traefik.port=9100'
+      - 'traefik.protocol=http'
+      - 'traefik.frontend.rule=Host:${DOMAIN}'
+      - "traefik.frontend.auth.basic=${BASIC_AUTH}"
+#      - 'traefik.frontend.whiteList.sourceRange=${WHITE_LIST_IP}'
+
+  nginx:
+    restart: always
+    image: nginx/nginx-prometheus-exporter:0.3.0
+    command: --nginx.scrape-uri http://127.0.0.1:8084/stub_status
+    network_mode: host
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.port=9113'
+      - 'traefik.protocol=http'
+      - 'traefik.frontend.rule=Host:${DOMAIN}; PathPrefixStrip:/nginx'
+      - "traefik.frontend.auth.basic=${BASIC_AUTH}"
+#      - 'traefik.frontend.whiteList.sourceRange=${WHITE_LIST_IP}'
