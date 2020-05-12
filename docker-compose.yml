@@ -44,7 +44,7 @@ services:
       - 'traefik.protocol=http'
       - 'traefik.frontend.rule=Host:${DOMAIN}'
       - "traefik.frontend.auth.basic=${BASIC_AUTH}"
-#      - 'traefik.frontend.whiteList.sourceRange=${WHITE_LIST_IP}'
+      - 'traefik.frontend.whiteList.sourceRange=${WHITE_LIST_IP}'
 
 #  nginx:
 #    restart: always
